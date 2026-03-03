@@ -15,8 +15,7 @@ class Settings(BaseSettings):
     GNEWS_API_KEY: Optional[str] = Field(None)
     
     # Vector DB Configs
-    CHROMA_DB_PATH: str = os.path.join("data", "vector_store")
-    COLLECTION_NAME: str = "invest_today_reports"
+    FAISS_INDEX_PATH: str = os.path.join("data", "faiss_index")
     
     # Model Configs
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
