@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Invest_Today"
+version = "0.1.0"
+description = "Invest Today: AI-powered Indian Stock Market Analysis"
+dependencies = [
+    "langchain-google-genai",
+    "langchain",
+    "langgraph",
+    "chromadb",
+    "yfinance",
+    "nsepython",
+    "fastapi",
+    "uvicorn",
+    "streamlit",
+    "python-dotenv",
+    "pandas",
+    "plotly",
+    "pydantic",
+    "pydantic-settings",
+    "requests",
+    "beautifulsoup4",
+    "sentence-transformers",
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
