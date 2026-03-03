@@ -8,6 +8,12 @@ if sys.platform == "win32":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 def main():
+    if "--api" in sys.argv:
+        import uvicorn
+        print("Starting Invest Today API Server...")
+        uvicorn.run("app.api.routes:app", host="127.0.0.1", port=8000, reload=True)
+        return
+
     print("--- Invest Today: Indian Market Analyst ---")
     
     # Example Query
