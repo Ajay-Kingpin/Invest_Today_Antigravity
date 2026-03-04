@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  invest-today:
+    build: .
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+      - "8501:8501"
+    environment:
+      - WATCHDOG_USE_INOTIFY=1
+    command: python run_local.py
