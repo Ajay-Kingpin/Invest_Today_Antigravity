@@ -1,13 +1,8 @@
 # Invest Today: Judge Agent
 from typing import Dict
-from app.core.config import settings
-import google.generativeai as genai
+from app.core.llm_service import llm_service
 
 class JudgeAgent:
-    def __init__(self):
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel(settings.JUDGE_MODEL)
-
     def synthesize(self, symbol: str, reports: Dict[str, str]) -> str:
         """Synthesize multiple specialist reports into a final recommendation."""
         
@@ -40,7 +35,6 @@ class JudgeAgent:
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            return response.text
+            return llm_service.generate_content(prompt, model_type="judge")
         except Exception as e:
             return f"Final Judgement Generation Error: {str(e)}"

@@ -1,16 +1,13 @@
 # Invest Today: Sentiment Analyst Agent
 from typing import List, Dict, Any
 from app.tools.news import NewsTool
-from app.core.config import settings
-import google.generativeai as genai
+from app.core.llm_service import llm_service
 
 class SentimentAnalystAgent:
     def __init__(self):
         self.news_tool = NewsTool()
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel(settings.ANALYST_MODEL)
 
-    def analyze(self, symbol: str) -> str:
+    def analyze(self, symbol: str, state: Dict[str, Any] = None) -> str:
         """Analyze market sentiment based on recent news."""
         news = self.news_tool.get_company_news(symbol)
         
@@ -35,7 +32,6 @@ class SentimentAnalystAgent:
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            return response.text
+            return llm_service.generate_content(prompt, model_type="analyst")
         except Exception as e:
             return f"Sentiment Analysis Generation Error: {str(e)}"

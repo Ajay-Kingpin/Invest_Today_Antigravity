@@ -10,6 +10,7 @@ load_dotenv()
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Invest_Today"
     GOOGLE_API_KEY: str = Field(...)
+    GROQ_API_KEY: Optional[str] = Field(None)
     
     # Tool Configs
     GNEWS_API_KEY: Optional[str] = Field(None)
@@ -21,6 +22,7 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
     ANALYST_MODEL: str = "gemini-1.5-flash"
     JUDGE_MODEL: str = "gemini-1.5-flash"
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     model_config = SettingsConfigDict(
         case_sensitive=True,

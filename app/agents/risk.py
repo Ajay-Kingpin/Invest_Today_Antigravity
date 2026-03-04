@@ -2,16 +2,13 @@
 from typing import Dict, Any
 from app.tools.news import NewsTool
 from app.tools.economic import EconomicTool
-from app.core.config import settings
-import google.generativeai as genai
+from app.core.llm_service import llm_service
 
 class RiskAnalystAgent:
     def __init__(self):
         self.news_tool = NewsTool()
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel(settings.ANALYST_MODEL)
 
-    def analyze(self, symbol: str) -> str:
+    def analyze(self, symbol: str, state: Dict[str, Any] = None) -> str:
         """Analyze specific and macro risks for a stock."""
         macro_data = EconomicTool.get_india_macro_data()
         
@@ -43,7 +40,6 @@ class RiskAnalystAgent:
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            return response.text
+            return llm_service.generate_content(prompt, model_type="analyst")
         except Exception as e:
             return f"Risk Analysis Generation Error: {str(e)}"

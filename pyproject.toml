@@ -6,8 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "Invest_Today"
 version = "0.1.0"
 description = "Invest Today: AI-powered Indian Stock Market Analysis"
+requires-python = ">=3.11,<3.14"
 dependencies = [
-    "langchain-google-genai",
+    "google-genai",
+    "groq",
     "langchain",
     "langgraph",
     "faiss-cpu",

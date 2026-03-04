@@ -1,7 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from app.core.config import settings
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class NewsTool:
     def __init__(self):
@@ -22,7 +22,7 @@ class NewsTool:
         }
         
         try:
-            response = requests.get(self.base_url, params=params)
+            response = requests.get(self.base_url, params=params, timeout=5)
             response.raise_for_status()
             data = response.json()
             return data.get("articles", [])
@@ -38,7 +38,7 @@ class NewsTool:
         }
         
         try:
-            response = requests.get(search_url, headers=headers)
+            response = requests.get(search_url, headers=headers, timeout=5)
             soup = BeautifulSoup(response.text, "html.parser")
             news_items = []
             

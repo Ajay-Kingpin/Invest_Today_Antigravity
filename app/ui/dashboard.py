@@ -11,7 +11,7 @@ st.title("📈 Invest Today: AI Indian Market Analyst")
 st.markdown("---")
 
 # Sidebar for Search
-query = st.sidebar.text_input("Analyze a Stock (e.g., RELIANCE, TCS, HDFCBank)", value="RELIANCE")
+query = st.sidebar.text_input("Analyze a Stock (e.g., RELIANCE, TCS, HDFCBank)", value="")
 analyze_btn = st.sidebar.button("Run Comprehensive Analysis")
 
 def get_technical_chart(symbol):
@@ -26,12 +26,15 @@ def get_technical_chart(symbol):
         return fig
     return None
 
-if analyze_btn or query:
+if analyze_btn and query:
     with st.spinner(f"Analyzing {query}..."):
         try:
-            # For simplicity in local dev, we call the API or the graph directly
-            # Here we simulate an API call to our own backend
-            response = requests.post("http://127.0.0.1:8000/analyze", json={"query": query})
+            # Added timeout of 120s to prevent indefinite hang
+            response = requests.post(
+                "http://127.0.0.1:8000/analyze", 
+                json={"query": query},
+                timeout=120
+            )
             
             if response.status_code == 200:
                 data = response.json()
@@ -41,7 +44,11 @@ if analyze_btn or query:
                 col1, col2 = st.columns([2, 1])
                 with col1:
                     st.header(f"Analysis for {symbol}")
-                    st.plotly_chart(get_technical_chart(symbol), use_container_width=True)
+                    fig = get_technical_chart(symbol)
+                    if fig:
+                        st.plotly_chart(fig, use_container_width=True)
+                    else:
+                        st.info("Technical chart not available for this symbol.")
                 
                 with col2:
                     st.subheader("The Judge's Final Verdict")
@@ -60,7 +67,11 @@ if analyze_btn or query:
                 with tabs[3]:
                     st.markdown(data["reports"].get("risk", "N/A"))
             else:
-                st.error(f"Error: {response.json().get('detail', 'Unknown error')}")
+                error_detail = response.json().get('detail', 'Unknown error')
+                st.error(f"Analysis Failed: {error_detail}")
+        except requests.exceptions.Timeout:
+            st.error("⏰ Analysis Timed Out: The request took too long. This usually happens when the AI is processing complex data or an external service is slow. Please try again in a moment.")
+            st.info("💡 Tip: Try analyzing a different stock or check if the backend is busy.")
         except Exception as e:
             st.error(f"Failed to connect to backend: {str(e)}")
-            st.info("Make sure the backend is running with: `python main.py --api`")
+            st.info("Make sure the backend is running and accessible.")

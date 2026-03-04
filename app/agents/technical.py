@@ -3,15 +3,10 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any
 from app.tools.market_data import MarketDataTool
-from app.core.config import settings
-import google.generativeai as genai
+from app.core.llm_service import llm_service
 
 class TechnicalAnalystAgent:
-    def __init__(self):
-        genai.configure(api_key=settings.GOOGLE_API_KEY)
-        self.model = genai.GenerativeModel(settings.ANALYST_MODEL)
-
-    def analyze(self, symbol: str) -> str:
+    def analyze(self, symbol: str, state: Dict[str, Any] = None) -> str:
         """Perform technical analysis on a stock symbol."""
         df = MarketDataTool.get_historical_data(symbol, period="3mo")
         if df is None or df.empty:
@@ -69,7 +64,6 @@ class TechnicalAnalystAgent:
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            return response.text
+            return llm_service.generate_content(prompt, model_type="analyst")
         except Exception as e:
             return f"Technical Analysis Generation Error: {str(e)}"

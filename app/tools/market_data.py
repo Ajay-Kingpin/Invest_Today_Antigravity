@@ -17,6 +17,10 @@ class MarketDataTool:
             ticker = yf.Ticker(ticker_symbol)
             info = ticker.info
             
+            # Strict validation: if we don't have a price, it's not a valid/active ticker in this market
+            if not info or info.get("currentPrice") is None:
+                raise ValueError(f"No active price data found for {ticker_symbol} in NSE/BSE.")
+            
             return {
                 "symbol": symbol,
                 "current_price": info.get("currentPrice"),
@@ -34,6 +38,7 @@ class MarketDataTool:
         except Exception as e:
             # Fallback to nsepython for LTP if yfinance fails
             try:
+                # nse_quote_ltp doesn't always support timeout, but we'll try to be quick
                 ltp = nse_quote_ltp(symbol)
                 return {
                     "symbol": symbol,

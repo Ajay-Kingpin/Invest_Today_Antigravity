@@ -11,7 +11,8 @@ def main():
     if "--api" in sys.argv:
         import uvicorn
         print("Starting Invest Today API Server...")
-        uvicorn.run("app.api.routes:app", host="127.0.0.1", port=8000, reload=True)
+        # Listen on 0.0.0.0 for better local resolution compatibility
+        uvicorn.run("app.api.routes:app", host="0.0.0.0", port=8000, reload=True)
         return
 
     print("--- Invest Today: Indian Market Analyst ---")
@@ -33,11 +34,15 @@ def main():
         # Invoke the graph
         result = app.invoke(initial_state)
         
-        if result.get("errors"):
+        # Debug: Uncomment to see full state
+        # logger.debug(f"Final State: {result}")
+        
+        if result.get("errors") and len(result.get("errors", [])) > 0:
             print(f"ERROR: {result['errors'][0]}")
             return
-
-        print(f"\nFINAL ANALYSIS FOR: {result['symbol']}")
+    
+        symbol = result.get("symbol", "N/A")
+        print(f"\nFINAL ANALYSIS FOR: {symbol}")
         print("=" * 40)
         print(result.get("final_recommendation", "No recommendation generated."))
         print("=" * 40)

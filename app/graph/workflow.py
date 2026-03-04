@@ -17,6 +17,7 @@ def create_invest_today_graph():
 
     # Add Nodes
     workflow.add_node("router", router_node)
+    workflow.add_node("dispatch", lambda state: state) # Dummy dispatch for fan-out
     workflow.add_node("technical_analyst", technical_analyst_node)
     workflow.add_node("fundamental_analyst", fundamental_analyst_node)
     workflow.add_node("sentiment_analyst", sentiment_analyst_node)
@@ -26,11 +27,26 @@ def create_invest_today_graph():
     # Define Edges
     workflow.set_entry_point("router")
 
-    # After router, run all analysts in parallel
-    workflow.add_edge("router", "technical_analyst")
-    workflow.add_edge("router", "fundamental_analyst")
-    workflow.add_edge("router", "sentiment_analyst")
-    workflow.add_edge("router", "risk_analyst")
+    # Conditional router logic
+    def route_after_router(state: InvestTodayState):
+        if state.get("errors"):
+            return "end"
+        return "continue"
+
+    workflow.add_conditional_edges(
+        "router",
+        route_after_router,
+        {
+            "end": END,
+            "continue": "dispatch"
+        }
+    )
+
+    # Parallel fan-out from dispatch
+    workflow.add_edge("dispatch", "technical_analyst")
+    workflow.add_edge("dispatch", "fundamental_analyst")
+    workflow.add_edge("dispatch", "sentiment_analyst")
+    workflow.add_edge("dispatch", "risk_analyst")
 
     # All analysts flow into the judge
     workflow.add_edge("technical_analyst", "judge")
@@ -38,8 +54,21 @@ def create_invest_today_graph():
     workflow.add_edge("sentiment_analyst", "judge")
     workflow.add_edge("risk_analyst", "judge")
 
-    # Judge is the final step
-    workflow.add_edge("judge", END)
+    # Define a conditional edge for judge
+    def should_continue(state: InvestTodayState):
+        if state.get("final_recommendation"):
+            return "end"
+        return "wait"
+
+    workflow.add_conditional_edges(
+        "judge",
+        should_continue,
+        {
+            "end": END,
+            "wait": END # In LangGraph, if multiple branches hit END, it waits for all.
+                        # The real fix is ensuring judge_node doesn't return a partial state.
+        }
+    )
 
     return workflow.compile()
 
